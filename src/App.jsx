@@ -7,8 +7,12 @@ const developer = {
   role: "Frontend Developer",
   bio: "I build accessible and responsive web applications with a focus on clean design and user experience.",
   avatar:
-   "/images/avatar.jpg.png",
-  skills: ["React", "JavaScript", "HTML", "CSS", "Accessibility"],
+  "https://raw.githubusercontent.com/nguyenphandanghuy/Exercise_Lab3/main/public/images/avatar.jpg.png",
+skills: ["React", "JavaScript", "HTML", "CSS", "Accessibility"],
+metrics: {
+  "Technical Skills": 5,
+  "Main Focus": "Accessibility",
+},
 };
 
 function App() {
