@@ -1,4 +1,4 @@
-  
+import ScientistDirectory from "./components/ScientistDirectory";
 import DeveloperCard from "./components/DeveloperCard";
 import "./App.css";
 
@@ -24,6 +24,7 @@ function App() {
       </header>
 
       <DeveloperCard developer={developer} />
+      <ScientistDirectory />
     </main>
   );
 }
