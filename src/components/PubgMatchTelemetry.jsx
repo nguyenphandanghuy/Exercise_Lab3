@@ -10,66 +10,101 @@ export function PubgMatchTelemetry({ squadId }) {
   });
 
   const [retryTick, setRetryTick] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
 
   useEffect(() => {
-    const controller = new AbortController();
-    const signal = controller.signal;
+    if (isPaused) return;
 
-    setView({
-      status: "LOADING",
-      data: null,
-      error: null,
-    });
+    let isActive = true;
+    let requestController = null;
+    let timer = null;
+    let firstRequest = true;
 
-    const timer = setTimeout(() => {
-      // Ignore an old request after switching squads.
-      if (signal.aborted) return;
+    const loadTelemetry = () => {
+      requestController = new AbortController();
+      const signal = requestController.signal;
 
-      // Simulate 35% packet loss.
-      const packetLost = Math.random() < 0.35;
-
-      if (packetLost) {
+      if (firstRequest) {
         setView({
-          status: "ERROR",
+          status: "LOADING",
           data: null,
-          error: "Satellite connection lost. Please reconnect.",
+          error: null,
         });
-        return;
+
+        firstRequest = false;
       }
 
-      const squad = PUBG_VN_SQUADS.find(
-        (item) => item.id === squadId
-      );
+      timer = setTimeout(() => {
+        if (!isActive || signal.aborted) return;
 
-      if (!squad) {
+        // Simulate 35% packet loss.
+        const packetLost = Math.random() < 0.35;
+
+        if (packetLost) {
+          setView({
+            status: "ERROR",
+            data: null,
+            error: "Satellite connection lost. Please reconnect.",
+          });
+          return;
+        }
+
+        const squad = PUBG_VN_SQUADS.find(
+          (item) => item.id === squadId
+        );
+
+        if (!squad) {
+          setView({
+            status: "ERROR",
+            data: null,
+            error: "Squad not found.",
+          });
+          return;
+        }
+
+        if (!isActive || signal.aborted) return;
+
         setView({
-          status: "ERROR",
-          data: null,
-          error: "Squad not found.",
+          status: "SUCCESS",
+          data: squad,
+          error: null,
         });
-        return;
+      }, 800);
+    };
+
+    loadTelemetry();
+
+    const interval = setInterval(() => {
+      if (!isActive) return;
+
+      if (requestController) {
+        requestController.abort();
       }
 
-      // Ignore results if the request was cancelled.
-      if (signal.aborted) return;
+      clearTimeout(timer);
 
-      setView({
-        status: "SUCCESS",
-        data: squad,
-        error: null,
-      });
-    }, 1000);
+      loadTelemetry();
+    }, 2000);
 
     return () => {
+      isActive = false;
+
+      clearInterval(interval);
       clearTimeout(timer);
-      controller.abort();
+
+      if (requestController) {
+        requestController.abort();
+      }
     };
-  }, [squadId, retryTick]);
+  }, [squadId, retryTick, isPaused]);
 
   // LOADING: Skeleton UI
   if (view.status === "LOADING") {
     return (
-      <section aria-busy="true" aria-label="Loading PUBG telemetry">
+      <section
+        aria-busy="true"
+        aria-label="Loading PUBG telemetry"
+      >
         <h2>KRAFTON PUBG Vietnam Telemetry</h2>
 
         <div className="telemetry-skeleton">
@@ -124,6 +159,13 @@ export function PubgMatchTelemetry({ squadId }) {
       <p>Kills: {view.data.kills}</p>
       <p>Win Probability: {view.data.winProb}</p>
       <p>Status: {view.data.status}</p>
+
+      <button
+        type="button"
+        onClick={() => setIsPaused((paused) => !paused)}
+      >
+        {isPaused ? "Resume Telemetry" : "Pause Telemetry"}
+      </button>
     </article>
   );
 }
