@@ -1,3 +1,5 @@
+import { useState } from "react";
+import PubgMatchTelemetry from "./components/PubgMatchTelemetry";
 import ScientistDirectory from "./components/ScientistDirectory";
 import DeveloperCard from "./components/DeveloperCard";
 import "./App.css";
@@ -16,6 +18,7 @@ metrics: {
 };
 
 function App() {
+    const [selectedSquad, setSelectedSquad] = useState("cerberus");
   return (
     <main className="app">
       <header className="page-header">
@@ -25,8 +28,24 @@ function App() {
 
       <DeveloperCard developer={developer} />
       <ScientistDirectory />
+      <section>
+        <h2>PUBG Vietnam Series</h2>
+
+        <label htmlFor="squad-select">Select Squad: </label>
+
+        <select
+          id="squad-select"
+          value={selectedSquad}
+          onChange={(event) => setSelectedSquad(event.target.value)}
+        >
+          <option value="cerberus">Cerberus Esports</option>
+          <option value="expendables">The Expendables</option>
+          <option value="genius">Genius Esports</option>
+        </select>
+
+        <PubgMatchTelemetry squadId={selectedSquad} />
+      </section>
     </main>
   );
 }
-
 export default App;
