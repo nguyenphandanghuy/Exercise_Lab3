@@ -37,3 +37,37 @@
     font-size: 27px;
   }
 }
+
+.telemetry-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 16px 0;
+}
+
+.skeleton {
+  height: 20px;
+  width: 100%;
+  border-radius: 6px;
+  background: #e5e7eb;
+  animation: skeleton-pulse 1.2s ease-in-out infinite;
+}
+
+.skeleton-title {
+  height: 28px;
+  width: 60%;
+}
+
+@keyframes skeleton-pulse {
+  0% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.4;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
